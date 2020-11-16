@@ -1,0 +1,184 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Covid Cases Predictor</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            margin: 0 !important;
+            padding: 10vh 10vw;
+            min-height: 100vh;
+            min-width: 100vw;
+            background-image: url('./home.jpg');
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        #trigger {
+            margin: auto;
+            margin-bottom: 0;
+        }
+
+        input {
+            margin: 0px !important;
+        }
+
+        form>.row {
+            margin: 30px;
+        }
+
+        div .btn-large {
+            width: 100%;
+            font-weight: 500;
+        }
+
+        .select-wrapper {
+            width: 100%;
+        }
+
+        .select-dropdown {
+            max-height: 250px;
+        }
+
+        .modal {
+            height: 70%;
+        }
+
+        .modal-content {
+            height: 100%;
+        }
+    </style>
+
+    <!-- JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</head>
+
+<body class="valign-wrapper row" onload="ready()">
+    <button data-target="form" class="btn-large modal-trigger blue" id="trigger">Get Predictions</button>
+    <div id="form" class="modal">
+        <div class="modal-content">
+            <button class="btn-floating modal-close waves-effect waves-light right red"><i
+                    class="material-icons">close</i></button>
+            <div class="valign-wrapper" style="height: 100%;">
+                <form class="col s12">
+                    <div class="row valign-wrapper">
+                        <div class="col s12 m6 l4">
+                            <label for="location" class="btn-large waves-effect waves-light indigo">Country</label>
+                        </div>
+                        <div class="col s12 m6 l8 valign-wrapper">
+                            <select id="country">
+                                <option value="" disabled selected>Choose country</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row valign-wrapper">
+                        <div class="col s12 m6 l4">
+                            <label for="date" class="btn-large waves-effect waves-light indigo">Date</label>
+                        </div>
+                        <div class="col s12 m6 l8 valign-wrapper">
+                            <input type="text" id="date" class="datepicker">
+                        </div>
+                    </div>
+                    <div class="row center-align">
+                        <div class="col s12">
+                            <button class="btn-large waves-effect waves-light green modal-trigger" data-target="result"
+                                type="submit" style="width: auto;" onclick="predict(event)">Get prediction</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="result" class="modal bottom-sheet">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between;">
+                <h3 class="header">Our Prediction</h3>
+                <button class="btn-floating modal-close waves-effect waves-light right red"><i
+                        class="material-icons">close</i></button>
+            </div>
+            <div class="center" id="input"
+                style="width: 60%; margin: 0 auto; font-size: 20px; display: flex; justify-content: space-between;">
+            </div>
+            <table class="centered responsive-table">
+                <thead>
+                    <tr>
+                        <th>Total Cases</th>
+                        <th>Total Deaths</th>
+                        <th>Total Recovered</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="total_cases"></td>
+                        <td id="total_deaths"></td>
+                        <td id="total_recovered"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let data;
+        const ready = () => {
+            M.Range.init(document.querySelectorAll('input[type=range]'));
+            M.Datepicker.init(document.querySelectorAll('.datepicker'), {
+                format: 'yyyy-mm-dd'
+            });
+            M.Modal.init(document.querySelectorAll('.modal'));
+
+            fetch('https://covid19-api.org/api/countries').then(response => {
+                response.json().then(data => {
+                    let countries = "";
+                    data.forEach(country => {
+                        countries += `<option value="${country.alpha2}">${country.name}</option>`;
+                    });
+                    document.querySelector('#country').innerHTML += countries;
+                    M.FormSelect.init(document.querySelector('#country'));
+                })
+            })
+        }
+
+        const predict = e => {
+            e.preventDefault();
+            let country = document.querySelector('#country').value;
+            let date = document.querySelector('#date').value;
+            fetch(`https://covid19-api.org/api/status/${country}?date=${date}`).then(response => {
+                response.json().then(data => {
+                    document.querySelector('#result .modal-content #input').innerHTML = `
+                        <p>Country Code: ${document.querySelector('#country').value}</p>
+                        <p>Date: ${document.querySelector('#date').value}</p>
+                    `;
+                    document.querySelector('#result .modal-content #total_cases').innerHTML = data.cases;
+                    document.querySelector('#result .modal-content #total_deaths').innerHTML = data.deaths;
+                    document.querySelector('#result .modal-content #total_recovered').innerHTML = data.recovered;
+                })
+            })
+            // $.post("http://127.0.0.1:5000/predict", {
+            //     continent: document.querySelector('#continent').value,
+            //     location: document.querySelector('#location').value,
+            //     date: Date.parse(document.querySelector('#date').value)
+            // }, (response, status) => {
+            // document.querySelector('#result .modal-content #input').innerHTML = `
+            //     <p>Country Code: ${document.querySelector('#country').value}</p>
+            //     <p>Date: ${document.querySelector('#date').value}</p>
+            // `;
+            // document.querySelector('#result .modal-content #new_cases').innerHTML = response.prediction.new_cases;
+            // document.querySelector('#result .modal-content #total_cases').innerHTML = response.prediction.total_cases;
+            // document.querySelector('#result .modal-content #new_deaths').innerHTML = response.prediction.new_deaths;
+            // document.querySelector('#result .modal-content #total_deaths').innerHTML = response.prediction.total_deaths;
+            // });
+            M.Modal.getInstance(document.querySelector('#result')).open();
+        }
+    </script>
+</body>
+
+</html>
