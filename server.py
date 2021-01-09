@@ -5,10 +5,10 @@ import util
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/get_data')
-def get_data():
+@app.route('/get_locations')
+def get_locations():
     response = jsonify({
-        'data': util.get_data()
+        'locations': util.get_locations()
     })
     
     response.headers.add('Access-Control-Allow-Origin', '*')
@@ -16,12 +16,13 @@ def get_data():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    continent = request.form['continent']
     location = request.form['location']
-    date = int(request.form['date'])
+    year = request.form['year']
+    month = request.form['month']
+    day = request.form['day']
 
     response = jsonify({
-        'prediction': util.predict(continent, location, date)
+        'prediction': util.predict(location, year, month, day)
     })
 
     response.headers.add('Access-Control-Allow-Origin', '*')
