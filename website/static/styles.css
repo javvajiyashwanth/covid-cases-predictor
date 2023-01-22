@@ -18,6 +18,10 @@ body > div {
     background-size: cover;
 }
 
+label {
+    font-size: 1.2rem;
+}
+
 input {
     margin: 0px !important;
 }

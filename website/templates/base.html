@@ -23,17 +23,9 @@
     </nav>
     <div class="col s12 m6 hide-on-small-only" id="bg"></div>
     <div class="col s12 m6">
-        {% include 'predict.html' %}
+        {% block content %} {% endblock %} 
     </div>
     <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}"></script>
-    {% if message %}
-    {% include 'result.html' %}
-    <script>
-        $(document).ready(function () {
-            $('.modal#result').modal('open');
-        });
-    </script>
-    {% endif %}
 </body>
 
 </html>
