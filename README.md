@@ -10,14 +10,11 @@ This is a web application that predicts the number of Covid-19 cases and deaths 
 
 ## Installation
 - Clone the repository
-
-   ```git clone https://github.com/javvajiyashwanth/covid-cases-predictor.git```
+<br />```git clone https://github.com/javvajiyashwanth/covid-cases-predictor.git```
 - Install the requirements
-  
-   ```pip install -r requirements.txt```
+<br />```pip install -r requirements.txt```
 - Run the app
-  
-   ```python app.py```
+<br /> ```python app.py```
 - Open the app on your browser by visiting http://localhost:5000/
 
 ## Data
